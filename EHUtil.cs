@@ -9,8 +9,10 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using System.Reflection;
 using Everhood.Battle;
-using System.Collections.Generic;
 using Doozy.Engine.Extensions;
+using System.IO;
+using Everhood.Chart;
+using MonoMod.Utils.Cil;
 
 namespace EHUtil;
 
@@ -34,8 +36,12 @@ public class EHUtil : BaseUnityPlugin {
 
   public static Everhood.Chart.ChartReader lastCr;
   public static float lastSongLength;
+  public static bool loadCustomBattle;
 
   private EHUtilUI UI;
+
+  public static Assembly UMod;
+  public static Assembly UModShared;
 
   internal static ManualLogSource Log;
 
@@ -43,6 +49,11 @@ public class EHUtil : BaseUnityPlugin {
     Log = BepInEx.Logging.Logger.CreateLogSource("EHUtil");
 
     PluginInfo = Info;
+
+    UMod = Assembly.LoadFile(Path.Combine(Info.Location, @"..\UMod.dll"));
+    UModShared = Assembly.LoadFile(Path.Combine(Info.Location, @"..\UMod-Shared.dll"));
+
+    LoadEverhoodMod.Load();
 
     Assets.Init();
 
@@ -63,11 +74,16 @@ public class EHUtil : BaseUnityPlugin {
       enemyHpAtCheckpoint = -1;
     };
 
-    ChartAPI.OnChartStart += (object sender, EventArgs args) => {
-      var cr = (Everhood.Chart.ChartReader)sender;
-      lastCr = cr;
-      lastCr.audioSource.pitch = currentPitch;
-      lastSongLength = lastCr.audioSource.clip.length;
+    // ChartAPI.OnChartStart += (object sender, EventArgs args) => {
+    //   var cr = (Everhood.Chart.ChartReader)sender;
+    //   lastCr = cr;
+    //   lastCr.audioSource.pitch = currentPitch;
+    //   lastSongLength = lastCr.audioSource.clip.length;
+    // };
+
+    SceneManager.sceneLoaded += (Scene scene, LoadSceneMode loadSceneMode) => {
+      var atm = SceneManager.GetSceneByName("AtmBattle");
+      if (scene == atm) CustomBattles.Init();
     };
 
     IL.Everhood.Chart.ChartReader.ChartReaderBehaviour += HookChartReaderBehaviour;
@@ -79,6 +95,7 @@ public class EHUtil : BaseUnityPlugin {
     UIgo.transform.SetParent(TextDrawing.GetCanvas().transform);
     UI = UIgo.AddComponent<EHUtilUI>();
     UIgo.AddComponent<RectTransform>().FullScreen(true);
+    UIgo.transform.position = Vector3.zero;
 
     ToggleDebugMode(false);
   }
@@ -112,7 +129,7 @@ public class EHUtil : BaseUnityPlugin {
     debugMode = state;
     TextDrawing.ToggleConsole(state);
 
-    UI.gameObject.SetActive(state);
+    UI.DebugUI.SetActive(state);
   }
 
   private void JumpInChart(float distance) {
@@ -200,8 +217,19 @@ public class EHUtil : BaseUnityPlugin {
     if (Input.GetKeyDown(KeyCode.F4)) {
       if (lastCr != null) {
         ChartEncoder.Encode(lastCr);
-        TextDrawing.DrawToConsole($"Wrote chart to file {lastCr.chart.songName}.chart");
       }
+    }
+    if (Input.GetKeyDown(KeyCode.F5)) {
+      if (lastCr != null) {
+        var chart = ChartEncoder.Decode(Path.Combine(PluginInfo.Location, "../72afterbreak1loop.chart"));
+        ChartEncoder.HotswapChart(chart, lastCr);
+      }
+    }
+    if (Input.GetKeyDown(KeyCode.F6)) {
+      CustomBattles.Load();
+    }
+    if (Input.GetKeyDown(KeyCode.F7)) {
+      SceneManager.LoadScene("MainMenu");
     }
   }
 }
