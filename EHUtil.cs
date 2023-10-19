@@ -200,7 +200,7 @@ public class EHUtil : BaseUnityPlugin {
     if (Input.GetKeyDown(KeyCode.F4)) {
       if (lastCr != null) {
         ChartEncoder.Encode(lastCr);
-        TextDrawing.DrawToConsole($"Wrote chart to file {lastCr.chart.songName}.chart");
+        TextDrawing.DrawToConsole($"Wrote chart to {lastCr.chart.songName}.chart");
       }
     }
   }

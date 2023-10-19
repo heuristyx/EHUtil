@@ -12,21 +12,29 @@ public class EHUtilUI : MonoBehaviour {
   private GameObject ChartPosLabel;
   private GameObject DebugControlsLabel;
   private GameObject TASPlaybackLabel;
+  public GameObject DebugUI;
 
   private void Awake() {
     SpeedMultiplier = DrawText("", TextDrawing.TextAlignmentOptions.BottomRight, 72);
     SpeedMultiplier.SetActive(false);
+    SpeedMultiplier.transform.SetParent(this.gameObject.transform);
 
     InvincibilityLabel = DrawText("Invincible", TextDrawing.TextAlignmentOptions.BottomRight, 48);
     InvincibilityLabel.SetActive(false);
+    InvincibilityLabel.transform.SetParent(this.gameObject.transform);
     InvincibilityLabel.transform.localPosition = new Vector3(0f, 100f, 0f);
+
+    DebugUI = new GameObject("Debug UI");
+    DebugUI.transform.SetParent(this.gameObject.transform);
+    DebugUI.AddComponent<RectTransform>().FullScreen(true);
 
     TASPlaybackLabel = DrawText("TAS Playback", TextDrawing.TextAlignmentOptions.BottomRight, 48);
     TASPlaybackLabel.SetActive(false);
+    TASPlaybackLabel.transform.SetParent(this.gameObject.transform);
     TASPlaybackLabel.transform.localPosition = new Vector3(0f, 200f, 0f);
 
     ChartPosLabel = DrawText("", TextDrawing.TextAlignmentOptions.Right);
-    ChartPosLabel.transform.SetParent(this.gameObject.transform);
+    ChartPosLabel.transform.SetParent(DebugUI.transform);
     ChartPosLabel.transform.localPosition = new Vector3(0f, 200f, 0f);
 
     string debugControls = "-=Debug controls=-\n";
@@ -39,10 +47,11 @@ public class EHUtilUI : MonoBehaviour {
     debugControls += "L - Toggle TAS mode, ; - TAS Playback\n";
     debugControls += "(In TAS mode) . - Advance timestep\n";
     debugControls += "R - Quick restart";
+    debugControls += "F4 - Dump current chart";
 
     DebugControlsLabel = DrawText(debugControls, TextDrawing.TextAlignmentOptions.Right);
+    DebugControlsLabel.transform.SetParent(DebugUI.transform);
     DebugControlsLabel.transform.localPosition = new Vector3(0, -200f, 0);
-    DebugControlsLabel.transform.SetParent(this.gameObject.transform);
   }
 
   private void Update() {
