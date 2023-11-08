@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace EHUtil;
 
-public class TASModeController : MonoBehaviour {
+public class TASModeController : MonoBehaviour
+{
   private BattlePlayer player;
   public bool tasToggled = false;
   public bool tasMode = false;
@@ -24,39 +25,47 @@ public class TASModeController : MonoBehaviour {
     KeyCode.S, KeyCode.DownArrow
   };
 
-  public void ToggleTASMode() {
+  public void ToggleTASMode()
+  {
     tasMode = !tasMode;
     tasToggled = true;
   }
 
-  private void Update() {
+  private void Update()
+  {
     // On toggle TAS Mode off
-    if (tasToggled && !tasMode && EHUtil.lastCr != null) {
+    if (tasToggled && !tasMode && EHUtil.lastCr != null)
+    {
       Time.timeScale = 1f;
       EHUtil.lastAudioSource.Play();
       tasToggled = false;
     }
 
     // TAS Mode update
-    if (tasMode && EHUtil.lastCr != null) {
-      if (tasToggled) {
+    if (tasMode && EHUtil.lastCr != null)
+    {
+      if (tasToggled)
+      {
         Time.timeScale = 0f;
         EHUtil.lastAudioSource.Pause();
         recording.Clear();
         tasToggled = false;
       }
 
-      foreach (var key in validKeys) {
+      foreach (var key in validKeys)
+      {
         if (Input.GetKeyDown(key))
           recording.AddInput(EHUtil.lastAudioSource.time, key);
       }
 
-      if (lastSongTime < EHUtil.lastAudioSource.time) {
+      if (lastSongTime < EHUtil.lastAudioSource.time)
+      {
         Time.timeScale = 0f;
         EHUtil.lastAudioSource.Pause();
       }
 
-      if (Input.GetKeyDown(KeyCode.Period)) {
+      if (Input.GetKeyDown(KeyCode.Period))
+      {
         Time.timeScale = 1f;
         EHUtil.lastAudioSource.Play();
       }
@@ -65,12 +74,17 @@ public class TASModeController : MonoBehaviour {
     }
 
     // Replay mode update
-    if (replayMode && !tasMode && EHUtil.lastCr != null) {
-      for (int i = replayIndex; i < recording.inputs.Count; i++) {
+    if (replayMode && !tasMode && EHUtil.lastCr != null)
+    {
+      for (int i = replayIndex; i < recording.inputs.Count; i++)
+      {
         var currentKvp = recording.inputs.ElementAt(i);
-        if (currentKvp.Key <= EHUtil.lastAudioSource.time) {
-          foreach (var key in currentKvp.Value) {
-            switch (key) {
+        if (currentKvp.Key <= EHUtil.lastAudioSource.time)
+        {
+          foreach (var key in currentKvp.Value)
+          {
+            switch (key)
+            {
               case KeyCode.A:
               case KeyCode.LeftArrow:
                 player.horizontalInput.playerMovementObservers[0].Move(-1f);
@@ -94,13 +108,16 @@ public class TASModeController : MonoBehaviour {
             }
           }
           replayIndex = i + 1;
-        } else break;
+        }
+        else break;
       }
     }
   }
 
-  internal void PlaybackRecording() {
-    if (replayMode) {
+  internal void PlaybackRecording()
+  {
+    if (replayMode)
+    {
       replayMode = false;
       replayIndex = 0;
       return;
@@ -111,15 +128,18 @@ public class TASModeController : MonoBehaviour {
   }
 }
 
-internal class TASRecording {
+internal class TASRecording
+{
   public Dictionary<float, List<KeyCode>> inputs = new Dictionary<float, List<KeyCode>>();
 
-  public void AddInput(float time, KeyCode input) {
-    if(!inputs.ContainsKey(time)) inputs.Add(time, new List<KeyCode> { input });
+  public void AddInput(float time, KeyCode input)
+  {
+    if (!inputs.ContainsKey(time)) inputs.Add(time, new List<KeyCode> { input });
     else inputs[time].Add(input);
   }
 
-  public void Clear() {
+  public void Clear()
+  {
     inputs.Clear();
   }
 }

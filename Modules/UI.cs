@@ -6,7 +6,8 @@ using static Evergreen.TextDrawing;
 
 namespace EHUtil;
 
-public class EHUtilUI : MonoBehaviour {
+public class EHUtilUI : MonoBehaviour
+{
   private GameObject SpeedMultiplier;
   private GameObject InvincibilityLabel;
   private GameObject ChartPosLabel;
@@ -14,7 +15,8 @@ public class EHUtilUI : MonoBehaviour {
   private GameObject TASPlaybackLabel;
   public GameObject DebugUI;
 
-  private void Awake() {
+  private void Awake()
+  {
     SpeedMultiplier = DrawText("", TextDrawing.TextAlignmentOptions.BottomRight, 72);
     SpeedMultiplier.SetActive(false);
     SpeedMultiplier.transform.SetParent(this.gameObject.transform);
@@ -54,7 +56,8 @@ public class EHUtilUI : MonoBehaviour {
     DebugControlsLabel.transform.localPosition = new Vector3(0, -200f, 0);
   }
 
-  private void Update() {
+  private void Update()
+  {
     var stm = SpeedMultiplier.GetComponent<TextMeshProUGUI>();
 
     if (EHUtil.currentPitch == 1f && SpeedMultiplier.activeSelf) SpeedMultiplier.SetActive(false);
@@ -62,21 +65,24 @@ public class EHUtilUI : MonoBehaviour {
 
     stm.text = $"x{EHUtil.currentPitch:F1}";
 
-    stm.color = EHUtil.currentPitch switch {
-      >= 1.95f              => Color.red,
-      >= 1.45f and < 1.95f  => new Color(1f, 0.5f, 0f),
-      >= 1.05f and < 1.45f  => Color.yellow,
-      >= 0.95f and < 1.05f  => Color.white,
-      >= 0.55f and < 0.95f  => new Color(0.75f, 1f, 0.75f),
-      < 0.55f               => new Color(0.5f, 1f, 0.5f),
-      _                     => Color.white
+    stm.color = EHUtil.currentPitch switch
+    {
+      >= 1.95f => Color.red,
+      >= 1.45f and < 1.95f => new Color(1f, 0.5f, 0f),
+      >= 1.05f and < 1.45f => Color.yellow,
+      >= 0.95f and < 1.05f => Color.white,
+      >= 0.55f and < 0.95f => new Color(0.75f, 1f, 0.75f),
+      < 0.55f => new Color(0.5f, 1f, 0.5f),
+      _ => Color.white
     };
 
     if (EHUtil.invincible && !InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(true);
     else if (!EHUtil.invincible && InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(false);
 
-    if (EHUtil.debugMode) {
-      if (EHUtil.lastCr != null) {
+    if (EHUtil.debugMode)
+    {
+      if (EHUtil.lastCr != null)
+      {
         string chartPos = $"Chart pos: {EHUtil.lastAudioSource.time:F1}/{EHUtil.lastSongLength:F1}\nCheckpoint pos: {EHUtil.lastCheckpoint:F1} (RCPH {(EHUtil.returnToCheckpointOnHit ? "on" : "off")})";
         ChartPosLabel.GetComponent<TextMeshProUGUI>().text = chartPos;
       }

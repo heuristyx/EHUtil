@@ -7,18 +7,20 @@ using Everhood.Chart;
 
 namespace EHUtil;
 
-public static class ChartEncoder {
-  public static void Encode(Everhood.Chart.ChartReader cr) {
+public static class ChartEncoder
+{
+  public static void Encode(Everhood.Chart.ChartReader cr)
+  {
     string path = Path.Combine(Path.GetDirectoryName(EHUtil.PluginInfo.Location), $"{cr.chart.songName}.chart");
     string file = "[Song]\n{\n";
     file += $"  Resolution = {cr.chart.resolution}";
-    file +=  "\n}\n[SyncTrack]\n{\n";
-    file +=  "  0 = TS 4\n";
+    file += "\n}\n[SyncTrack]\n{\n";
+    file += "  0 = TS 4\n";
     file += $"  0 = B {cr.chart.bpm * 1000}";
-    file +=  "\n}\n[Events]\n{\n";
+    file += "\n}\n[Events]\n{\n";
     foreach (var s in cr._sections)
       file += $"  {s.sectionTick} = E \"{s.sectionID}\"\n";
-    file +=  "}\n[ExpertSingle]\n{\n";
+    file += "}\n[ExpertSingle]\n{\n";
     foreach (var n in cr._notes)
       file += $"  {n.noteTick} = N {n.noteCorridorID} 0 {n.noteID}\n";
     file += "}";
@@ -26,7 +28,8 @@ public static class ChartEncoder {
     TextDrawing.DrawToConsole($"Wrote chart to {path}.");
   }
 
-  public static Chart Decode(string path) {
+  public static Chart Decode(string path)
+  {
     string notesField = "";
     string sectionsField = "";
     int resolution = 0;
@@ -34,10 +37,13 @@ public static class ChartEncoder {
     bool readEvents = false;
     bool readNotes = false;
 
-    using (StreamReader sr = new StreamReader(path)) {
+    using (StreamReader sr = new StreamReader(path))
+    {
       string line;
-      while ((line = sr.ReadLine()) != null) {
-        if (line == "}") {
+      while ((line = sr.ReadLine()) != null)
+      {
+        if (line == "}")
+        {
           readEvents = false;
           readNotes = false;
         }
@@ -48,11 +54,13 @@ public static class ChartEncoder {
         if (readEvents) sectionsField += line + "\n";
         if (readNotes) notesField += line + "\n";
 
-        if (line == "[Events]") {
+        if (line == "[Events]")
+        {
           readEvents = true;
           sr.ReadLine();
         }
-        if (line == "[ExpertSingle]") {
+        if (line == "[ExpertSingle]")
+        {
           readNotes = true;
           sr.ReadLine();
         }
@@ -72,7 +80,8 @@ public static class ChartEncoder {
     return chart;
   }
 
-  public static void CopyChart(Chart from, Chart to) {
+  public static void CopyChart(Chart from, Chart to)
+  {
     to.bpm = from.bpm;
     to.notes = from.notes;
     to.sections = from.sections;
@@ -81,7 +90,8 @@ public static class ChartEncoder {
     to.songName = from.songName;
   }
 
-  public static void HotswapChart(Chart chart, Everhood.Chart.ChartReader cr) {
+  public static void HotswapChart(Chart chart, Everhood.Chart.ChartReader cr)
+  {
     chart.songAssetRefence = cr.chart.songAssetRefence;
     //cr.chart.songAssetRefence.ReleaseAsset();
     cr.chart = chart;
@@ -90,36 +100,37 @@ public static class ChartEncoder {
   }
 
   public static List<Everhood.Chart.Section> GetSectionsFixed(string sectionField)
-		{
-			List<Everhood.Chart.Section> list = new List<Everhood.Chart.Section>();
-			string[] array = sectionField.Split(new string[]
-			{
-				"\r\n",
-				"\n"
-			}, StringSplitOptions.None);
-			char[] separator = new char[]
-			{
-				' ',
-				'\t'
-			};
-			for (int i = 0; i < array.Length; i++)
-			{
-				if (!string.IsNullOrEmpty(array[i]))
-				{
-					string text = array[i];
-					text = string.Join("\n", from s in text.Split(new char[] {
-						'\n'
-					}) select s.Trim());
-					int num = int.Parse(text.Split(separator)[0]);
-					int num2 = text.IndexOf('"') + 1;
-					int num3 = text.LastIndexOf('"');
-					string text2 = text.Substring(num2, num3 - num2);
-					text2 = text2.Replace("section", "");
-					//text2 = text2.Remove(0, 1);
-					Everhood.Chart.Section item = new Everhood.Chart.Section(text2, (float)num);
-					list.Add(item);
-				}
-			}
-			return list;
-		}
+  {
+    List<Everhood.Chart.Section> list = new List<Everhood.Chart.Section>();
+    string[] array = sectionField.Split(new string[]
+    {
+        "\r\n",
+        "\n"
+    }, StringSplitOptions.None);
+    char[] separator = new char[]
+    {
+        ' ',
+        '\t'
+    };
+    for (int i = 0; i < array.Length; i++)
+    {
+      if (!string.IsNullOrEmpty(array[i]))
+      {
+        string text = array[i];
+        text = string.Join("\n", from s in text.Split(new char[] {
+            '\n'
+          })
+                                 select s.Trim());
+        int num = int.Parse(text.Split(separator)[0]);
+        int num2 = text.IndexOf('"') + 1;
+        int num3 = text.LastIndexOf('"');
+        string text2 = text.Substring(num2, num3 - num2);
+        text2 = text2.Replace("section", "");
+        //text2 = text2.Remove(0, 1);
+        Everhood.Chart.Section item = new Everhood.Chart.Section(text2, (float)num);
+        list.Add(item);
+      }
+    }
+    return list;
+  }
 }
