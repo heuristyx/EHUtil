@@ -33,7 +33,7 @@ public class TASModeController : MonoBehaviour {
     // On toggle TAS Mode off
     if (tasToggled && !tasMode && EHUtil.lastCr != null) {
       Time.timeScale = 1f;
-      EHUtil.lastCr.audioSource.Play();
+      EHUtil.lastAudioSource.Play();
       tasToggled = false;
     }
 
@@ -41,34 +41,34 @@ public class TASModeController : MonoBehaviour {
     if (tasMode && EHUtil.lastCr != null) {
       if (tasToggled) {
         Time.timeScale = 0f;
-        EHUtil.lastCr.audioSource.Pause();
+        EHUtil.lastAudioSource.Pause();
         recording.Clear();
         tasToggled = false;
       }
 
       foreach (var key in validKeys) {
         if (Input.GetKeyDown(key))
-          recording.AddInput(EHUtil.lastCr.audioSource.time, key);
+          recording.AddInput(EHUtil.lastAudioSource.time, key);
       }
 
-      if (lastSongTime < EHUtil.lastCr.audioSource.time) {
+      if (lastSongTime < EHUtil.lastAudioSource.time) {
         Time.timeScale = 0f;
-        EHUtil.lastCr.audioSource.Pause();
+        EHUtil.lastAudioSource.Pause();
       }
 
       if (Input.GetKeyDown(KeyCode.Period)) {
         Time.timeScale = 1f;
-        EHUtil.lastCr.audioSource.Play();
+        EHUtil.lastAudioSource.Play();
       }
 
-      lastSongTime = EHUtil.lastCr.audioSource.time;
+      lastSongTime = EHUtil.lastAudioSource.time;
     }
 
     // Replay mode update
     if (replayMode && !tasMode && EHUtil.lastCr != null) {
       for (int i = replayIndex; i < recording.inputs.Count; i++) {
         var currentKvp = recording.inputs.ElementAt(i);
-        if (currentKvp.Key <= EHUtil.lastCr.audioSource.time) {
+        if (currentKvp.Key <= EHUtil.lastAudioSource.time) {
           foreach (var key in currentKvp.Value) {
             switch (key) {
               case KeyCode.A:

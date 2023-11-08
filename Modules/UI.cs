@@ -46,7 +46,7 @@ public class EHUtilUI : MonoBehaviour {
     debugControls += "M - Toggle return to checkpoint on hit (RCPH)\n";
     debugControls += "L - Toggle TAS mode, ; - TAS Playback\n";
     debugControls += "(In TAS mode) . - Advance timestep\n";
-    debugControls += "R - Quick restart";
+    debugControls += "R - Quick restart\n";
     debugControls += "F4 - Dump current chart";
 
     DebugControlsLabel = DrawText(debugControls, TextDrawing.TextAlignmentOptions.Right);
@@ -77,7 +77,7 @@ public class EHUtilUI : MonoBehaviour {
 
     if (EHUtil.debugMode) {
       if (EHUtil.lastCr != null) {
-        string chartPos = $"Chart pos: {EHUtil.lastCr.audioSource.time:F1}/{EHUtil.lastSongLength:F1}\nCheckpoint pos: {EHUtil.lastCheckpoint:F1} (RCPH {(EHUtil.returnToCheckpointOnHit ? "on" : "off")})";
+        string chartPos = $"Chart pos: {EHUtil.lastAudioSource.time:F1}/{EHUtil.lastSongLength:F1}\nCheckpoint pos: {EHUtil.lastCheckpoint:F1} (RCPH {(EHUtil.returnToCheckpointOnHit ? "on" : "off")})";
         ChartPosLabel.GetComponent<TextMeshProUGUI>().text = chartPos;
       }
     }

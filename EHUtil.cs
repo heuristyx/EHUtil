@@ -9,7 +9,6 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using System.Reflection;
 using Everhood.Battle;
-using System.Collections.Generic;
 using Doozy.Engine.Extensions;
 
 namespace EHUtil;
@@ -32,7 +31,8 @@ public class EHUtil : BaseUnityPlugin {
 
   internal static TASModeController TASController;
 
-  public static Everhood.Chart.ChartReader lastCr;
+  public static object lastCr;
+  public static AudioSource lastAudioSource;
   public static float lastSongLength;
 
   private EHUtilUI UI;
@@ -43,6 +43,8 @@ public class EHUtil : BaseUnityPlugin {
     Log = BepInEx.Logging.Logger.CreateLogSource("EHUtil");
 
     PluginInfo = Info;
+
+    EHUtilConfig.Config.RegisterConfig(this);
 
     Assets.Init();
 
@@ -59,19 +61,17 @@ public class EHUtil : BaseUnityPlugin {
       SetPitch(1f);
       lastCheckpoint = 0f;
       lastCr = null;
+      lastAudioSource = null;
       lastSongLength = 0f;
       enemyHpAtCheckpoint = -1;
     };
 
     ChartAPI.OnChartStart += (object sender, EventArgs args) => {
-      var cr = (Everhood.Chart.ChartReader)sender;
-      lastCr = cr;
-      lastCr.audioSource.pitch = currentPitch;
-      lastSongLength = lastCr.audioSource.clip.length;
+      lastCr = sender;
+      lastAudioSource = CompatAPI.ChartReader.GetAudioSource(lastCr);
+      lastAudioSource.pitch = currentPitch;
+      lastSongLength = lastAudioSource.clip.length;
     };
-
-    IL.Everhood.Chart.ChartReader.ChartReaderBehaviour += HookChartReaderBehaviour;
-    IL.Everhood.Chart.ChartReader.JumpPosChange += HookJumpPosChange;
 
     TASController = this.gameObject.AddComponent<TASModeController>();
 
@@ -83,48 +83,25 @@ public class EHUtil : BaseUnityPlugin {
     ToggleDebugMode(false);
   }
 
-  private void HookJumpPosChange(ILContext il) {
-    var c = new ILCursor(il);
-
-    var m_setSongPosition = typeof(Everhood.Chart.ChartReader).GetMethod("set__songposition", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-    c.TryGotoNext(MoveType.After, i => i.MatchCall(m_setSongPosition));
-    c.Emit(OpCodes.Ldarg_0);
-    c.EmitDelegate<Action<Everhood.Chart.ChartReader>>((lastCr) => {
-      lastCr._songposition = lastCr.audioSource.time;
-    });
-  }
-
-  private void HookChartReaderBehaviour(ILContext il) {
-    var c = new ILCursor(il);
-
-    var m_setSongPosition = typeof(Everhood.Chart.ChartReader).GetMethod("set__songposition", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-    c.TryGotoNext(MoveType.After, i => i.MatchCall(m_setSongPosition));
-    c.Emit(OpCodes.Ldarg_0);
-    c.EmitDelegate<Action<Everhood.Chart.ChartReader>>((lastCr) => {
-      if (lastCr.audioSource.pitch != currentPitch) lastCr.audioSource.pitch = currentPitch;
-      lastCr._songposition = lastCr.audioSource.time;
-    });
-  }
-
   public void ToggleDebugMode(bool state) {
     debugMode = state;
     TextDrawing.ToggleConsole(state);
 
-    UI.gameObject.SetActive(state);
+    UI.DebugUI.gameObject.SetActive(state);
   }
 
   private void JumpInChart(float distance) {
     if (lastCr != null) {
-      lastCr.JumpPosChange(Mathf.Clamp(lastCr._songposition + distance, 0.0f, float.MaxValue));
+      var songPos = CompatAPI.ChartReader.GetSongPosition(lastCr);
+      CompatAPI.ChartReader.JumpPosChange(lastCr, Mathf.Clamp(songPos + distance, 0.0f, float.MaxValue));
     }
   }
 
   private void ReturnToCheckpoint() {
     var be = FindObjectOfType<BattleEnemy>();
     if (lastCr != null) {
-      lastCr.JumpPosChange(lastCheckpoint);
+
+      CompatAPI.ChartReader.JumpPosChange(lastCr, lastCheckpoint);
       var notes = FindObjectsOfType<ProjectileColorAccessibility>();
       foreach (var note in notes) note.gameObject.SetActive(false);
     }
@@ -136,11 +113,13 @@ public class EHUtil : BaseUnityPlugin {
 
   private void SetPitch(float newPitch) {
     currentPitch = Mathf.Clamp(newPitch, 0.1f, 10f);
+    CompatAPI.ChartReader.GetAudioSource(lastCr).pitch = currentPitch;
   }
 
   private void Update() {
-    if (SceneManager.GetActiveScene().name == "IntroMenu") {
-      SceneManager.LoadScene("MainMenu");
+    if (Evergreen.Evergreen.IsBaseGame) {
+      if (SceneManager.GetActiveScene().name == "IntroMenu" && EHUtilConfig.Config.skipIntro.Value)
+        SceneManager.LoadScene("MainMenu");
     }
     if (Input.GetKeyDown(KeyCode.F2)) {
       invincible = !invincible;
@@ -156,11 +135,11 @@ public class EHUtil : BaseUnityPlugin {
     }
     if (Input.GetKeyDown(KeyCode.G)) {
       SetPitch(currentPitch - 0.1f);
-      if (lastCr != null && debugMode)TextDrawing.DrawToConsole($"Set timescale to {currentPitch:F1}");
+      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set timescale to {currentPitch:F1}");
     }
     if (Input.GetKeyDown(KeyCode.H)) {
       SetPitch(currentPitch + 0.1f);
-      if (lastCr != null && debugMode)TextDrawing.DrawToConsole($"Set timescale to {currentPitch:F1}");
+      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set timescale to {currentPitch:F1}");
     }
     if (Input.GetKeyDown(KeyCode.R)) {
       BattlePauseController bpc = FindObjectOfType<BattlePauseController>();
@@ -178,10 +157,10 @@ public class EHUtil : BaseUnityPlugin {
           checkpointBar.transform.position = bp.transform.position;
           checkpointBar.AddComponent<CheckpointMove>();
         }
-        lastCheckpoint = lastCr.audioSource.time;
+        lastCheckpoint = lastAudioSource.time;
       }
       if (be != null) enemyHpAtCheckpoint = be.currentHp;
-      TextDrawing.DrawToConsole($"Set checkpoint at {lastCr.audioSource.time:F1}");
+      TextDrawing.DrawToConsole($"Set checkpoint at {lastAudioSource.time:F1}");
     }
     if (Input.GetKeyDown(KeyCode.N)) {
       ReturnToCheckpoint();
@@ -199,8 +178,11 @@ public class EHUtil : BaseUnityPlugin {
     }
     if (Input.GetKeyDown(KeyCode.F4)) {
       if (lastCr != null) {
-        ChartEncoder.Encode(lastCr);
-        TextDrawing.DrawToConsole($"Wrote chart to {lastCr.chart.songName}.chart");
+        if (!Evergreen.Evergreen.IsBaseGame) TextDrawing.DrawToConsole("Chart dumping not available for custom battles.");
+        else {
+          ChartEncoder.Encode(lastCr as Everhood.Chart.ChartReader);
+          TextDrawing.DrawToConsole($"Wrote chart to {(lastCr as Everhood.Chart.ChartReader).chart.songName}.chart");
+        }
       }
     }
   }
