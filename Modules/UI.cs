@@ -3,6 +3,7 @@ using Evergreen;
 using TMPro;
 using UnityEngine;
 using static Evergreen.TextDrawing;
+using static EHUtilConfig.Config;
 
 namespace EHUtil;
 
@@ -40,16 +41,16 @@ public class EHUtilUI : MonoBehaviour
     ChartPosLabel.transform.localPosition = new Vector3(0f, 200f, 0f);
 
     string debugControls = "-=Debug controls=-\n";
-    debugControls += "F1 - Show/hide this menu\n";
-    debugControls += "F2 - Toggle invincibility\n";
-    debugControls += "T/Y - Move in chart\n";
-    debugControls += "G/H - Change chart speed\n";
-    debugControls += "B - Set checkpoint, N - Move to checkpoint\n";
-    debugControls += "M - Toggle return to checkpoint on hit (RCPH)\n";
-    debugControls += "L - Toggle TAS mode, ; - TAS Playback\n";
-    debugControls += "(In TAS mode) . - Advance timestep\n";
-    debugControls += "R - Quick restart\n";
-    debugControls += "F4 - Dump current chart";
+    debugControls += $"{debugMenuKey.Value} - Show/hide this menu\n";
+    debugControls += $"{invincibilityKey.Value} - Toggle invincibility\n";
+    debugControls += $"{chartJumpBackKey.Value}/{chartJumpAheadKey.Value} - Move in chart\n";
+    debugControls += $"{chartSpeedDownKey.Value}/{chartSpeedUpKey.Value} - Change chart speed\n";
+    debugControls += $"{setCheckpointKey.Value} - Set checkpoint, {moveToCheckpointKey.Value} - Move to checkpoint\n";
+    debugControls += $"{toggleRCPHKey.Value} - Toggle return to checkpoint on hit (RCPH)\n";
+    debugControls += $"{toggleTASModeKey.Value} - Toggle TAS mode, {toggleTASPlaybackKey.Value} - TAS Playback\n";
+    debugControls += $"(In TAS mode) {advanceTASTimestepKey.Value} - Advance timestep\n";
+    debugControls += $"{quickRestartKey.Value} - Quick restart\n";
+    debugControls += $"{dumpChartKey.Value} - Dump current chart";
 
     DebugControlsLabel = DrawText(debugControls, TextDrawing.TextAlignmentOptions.Right);
     DebugControlsLabel.transform.SetParent(DebugUI.transform);

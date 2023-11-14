@@ -5,11 +5,10 @@ using Evergreen;
 using Everhood;
 using UnityEngine.SceneManagement;
 using System;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
-using System.Reflection;
 using Everhood.Battle;
 using Doozy.Engine.Extensions;
+
+using static EHUtilConfig.Config;
 
 namespace EHUtil;
 
@@ -46,7 +45,7 @@ public class EHUtil : BaseUnityPlugin
 
     PluginInfo = Info;
 
-    EHUtilConfig.Config.RegisterConfig(this);
+    RegisterConfig(this);
 
     Assets.Init();
 
@@ -62,7 +61,7 @@ public class EHUtil : BaseUnityPlugin
 
     BattleAPI.OnBattleLeave += (object sender, EventArgs args) =>
     {
-      SetPitch(1f);
+      currentPitch = 1f;
       lastCheckpoint = 0f;
       lastCr = null;
       lastAudioSource = null;
@@ -96,13 +95,12 @@ public class EHUtil : BaseUnityPlugin
     UI.DebugUI.gameObject.SetActive(state);
   }
 
-  private void JumpInChart(float distance)
+  private float JumpInChart(float distance)
   {
-    if (lastCr != null)
-    {
-      var songPos = CompatAPI.ChartReader.GetSongPosition(lastCr);
-      CompatAPI.ChartReader.JumpPosChange(lastCr, Mathf.Clamp(songPos + distance, 0.0f, float.MaxValue));
-    }
+    var songPos = CompatAPI.ChartReader.GetSongPosition(lastCr);
+    var newSongPos = Mathf.Clamp(songPos + distance, 0.0f, float.MaxValue);
+    CompatAPI.ChartReader.JumpPosChange(lastCr, newSongPos);
+    return newSongPos;
   }
 
   private void ReturnToCheckpoint()
@@ -132,44 +130,44 @@ public class EHUtil : BaseUnityPlugin
   {
     if (Evergreen.Evergreen.IsBaseGame)
     {
-      if (SceneManager.GetActiveScene().name == "IntroMenu" && EHUtilConfig.Config.skipIntro.Value)
+      if (SceneManager.GetActiveScene().name == "IntroMenu" && skipIntro.Value)
         SceneManager.LoadScene("MainMenu");
     }
-    if (Input.GetKeyDown(KeyCode.F2))
+    if (Input.GetKeyDown(debugMenuKey.Value))
+    {
+      ToggleDebugMode(!debugMode);
+    }
+    if (Input.GetKeyDown(invincibilityKey.Value))
     {
       invincible = !invincible;
       TextDrawing.DrawToConsole($"Toggled invincibility {(invincible ? "on" : "off")}");
     }
-    if (Input.GetKeyDown(KeyCode.Y))
+    if (Input.GetKeyDown(chartJumpAheadKey.Value) && lastCr != null)
     {
-      JumpInChart(5f);
-      TextDrawing.DrawToConsole("Jumped 5 seconds ahead");
+      var newPos = JumpInChart(chartJumpIncrement.Value);
+      TextDrawing.DrawToConsole($"Jumped to {newPos:F1}");
     }
-    if (Input.GetKeyDown(KeyCode.T))
+    if (Input.GetKeyDown(chartJumpBackKey.Value) && lastCr != null)
     {
-      JumpInChart(-5f);
-      TextDrawing.DrawToConsole("Jumped 5 seconds back");
+      var newPos = JumpInChart(-chartJumpIncrement.Value);
+      TextDrawing.DrawToConsole($"Jumped to {newPos:F1}");
     }
-    if (Input.GetKeyDown(KeyCode.G))
+    if (Input.GetKeyDown(chartSpeedDownKey.Value))
     {
-      SetPitch(currentPitch - 0.1f);
-      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set timescale to {currentPitch:F1}");
+      SetPitch(currentPitch - chartSpeedIncrement.Value);
+      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set chart speed to {currentPitch:F1}");
     }
-    if (Input.GetKeyDown(KeyCode.H))
+    if (Input.GetKeyDown(chartSpeedUpKey.Value))
     {
-      SetPitch(currentPitch + 0.1f);
-      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set timescale to {currentPitch:F1}");
+      SetPitch(currentPitch + chartSpeedIncrement.Value);
+      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set chart speed to {currentPitch:F1}");
     }
-    if (Input.GetKeyDown(KeyCode.R))
+    if (Input.GetKeyDown(quickRestartKey.Value))
     {
       BattlePauseController bpc = FindObjectOfType<BattlePauseController>();
       if (bpc != null) bpc.Retry();
     }
-    if (Input.GetKeyDown(KeyCode.F1))
-    {
-      ToggleDebugMode(!debugMode);
-    }
-    if (Input.GetKeyDown(KeyCode.B))
+    if (Input.GetKeyDown(setCheckpointKey.Value))
     {
       var be = FindObjectOfType<BattleEnemy>();
       if (lastCr != null)
@@ -186,25 +184,25 @@ public class EHUtil : BaseUnityPlugin
       if (be != null) enemyHpAtCheckpoint = be.currentHp;
       TextDrawing.DrawToConsole($"Set checkpoint at {lastAudioSource.time:F1}");
     }
-    if (Input.GetKeyDown(KeyCode.N))
+    if (Input.GetKeyDown(moveToCheckpointKey.Value))
     {
       ReturnToCheckpoint();
       TextDrawing.DrawToConsole("Moved to checkpoint");
     }
-    if (Input.GetKeyDown(KeyCode.M))
+    if (Input.GetKeyDown(toggleRCPHKey.Value))
     {
       returnToCheckpointOnHit = !returnToCheckpointOnHit;
       TextDrawing.DrawToConsole($"Toggled return to checkpoint on hit {(returnToCheckpointOnHit ? "on" : "off")}");
     }
-    if (Input.GetKeyDown(KeyCode.L))
+    if (Input.GetKeyDown(toggleTASModeKey.Value))
     {
       TASController.ToggleTASMode();
     }
-    if (Input.GetKeyDown(KeyCode.Semicolon))
+    if (Input.GetKeyDown(toggleTASPlaybackKey.Value))
     {
       TASController.PlaybackRecording();
     }
-    if (Input.GetKeyDown(KeyCode.F4))
+    if (Input.GetKeyDown(dumpChartKey.Value))
     {
       if (lastCr != null)
       {
