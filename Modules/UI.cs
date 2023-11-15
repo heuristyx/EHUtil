@@ -54,7 +54,7 @@ public class EHUtilUI : MonoBehaviour
 
     DebugControlsLabel = DrawText(debugControls, TextDrawing.TextAlignmentOptions.Right);
     DebugControlsLabel.transform.SetParent(DebugUI.transform);
-    DebugControlsLabel.transform.localPosition = new Vector3(0, -200f, 0);
+    DebugControlsLabel.transform.localPosition = new Vector3(0, -100f, 0);
   }
 
   private void Update()
@@ -80,7 +80,7 @@ public class EHUtilUI : MonoBehaviour
     if (EHUtil.invincible && !InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(true);
     else if (!EHUtil.invincible && InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(false);
 
-    if (EHUtil.debugMode)
+    if (Evergreen.Evergreen.DebugMode)
     {
       if (EHUtil.lastCr != null)
       {

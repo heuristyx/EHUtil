@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using System;
 using Everhood.Battle;
 using Doozy.Engine.Extensions;
+using System.Collections.Generic;
 
 using static EHUtilConfig.Config;
 
@@ -27,7 +28,6 @@ public class EHUtil : BaseUnityPlugin
   public static float lastCheckpoint = 0f;
   public static int enemyHpAtCheckpoint = -1;
   public static bool returnToCheckpointOnHit = false;
-  public static bool debugMode = false;
 
   internal static TASModeController TASController;
 
@@ -48,6 +48,7 @@ public class EHUtil : BaseUnityPlugin
     RegisterConfig(this);
 
     Assets.Init();
+    Commands.Init();
 
     Locking.AddLock(new Locking.Lock(
       Guid, "main", Locking.LockType.All
@@ -84,15 +85,9 @@ public class EHUtil : BaseUnityPlugin
     UI = UIgo.AddComponent<EHUtilUI>();
     UIgo.AddComponent<RectTransform>().FullScreen(true);
 
-    ToggleDebugMode(false);
-  }
+    Evergreen.Evergreen.OnToggleDebugMode += (self, state) => { UI.DebugUI.gameObject.SetActive(state); };
 
-  public void ToggleDebugMode(bool state)
-  {
-    debugMode = state;
-    TextDrawing.ToggleConsole(state);
-
-    UI.DebugUI.gameObject.SetActive(state);
+    Evergreen.Evergreen.ToggleDebugMode(false);
   }
 
   private float JumpInChart(float distance)
@@ -133,9 +128,12 @@ public class EHUtil : BaseUnityPlugin
       if (SceneManager.GetActiveScene().name == "IntroMenu" && skipIntro.Value)
         SceneManager.LoadScene("MainMenu");
     }
+
+    if (TextDrawing.inputField.isFocused) return;
+
     if (Input.GetKeyDown(debugMenuKey.Value))
     {
-      ToggleDebugMode(!debugMode);
+      Evergreen.Evergreen.ToggleDebugMode(!Evergreen.Evergreen.DebugMode);
     }
     if (Input.GetKeyDown(invincibilityKey.Value))
     {
@@ -155,12 +153,12 @@ public class EHUtil : BaseUnityPlugin
     if (Input.GetKeyDown(chartSpeedDownKey.Value))
     {
       SetPitch(currentPitch - chartSpeedIncrement.Value);
-      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set chart speed to {currentPitch:F1}");
+      if (lastCr != null) TextDrawing.DrawToConsole($"Set chart speed to {currentPitch:F1}");
     }
     if (Input.GetKeyDown(chartSpeedUpKey.Value))
     {
       SetPitch(currentPitch + chartSpeedIncrement.Value);
-      if (lastCr != null && debugMode) TextDrawing.DrawToConsole($"Set chart speed to {currentPitch:F1}");
+      if (lastCr != null) TextDrawing.DrawToConsole($"Set chart speed to {currentPitch:F1}");
     }
     if (Input.GetKeyDown(quickRestartKey.Value))
     {

@@ -15,8 +15,8 @@ internal class Config
   public static ConfigEntry<KeyCode> invincibilityKey;
   public static ConfigEntry<KeyCode> chartJumpAheadKey;
   public static ConfigEntry<KeyCode> chartJumpBackKey;
-  public static ConfigEntry<KeyCode> chartSpeedDownKey;
   public static ConfigEntry<KeyCode> chartSpeedUpKey;
+  public static ConfigEntry<KeyCode> chartSpeedDownKey;
   public static ConfigEntry<KeyCode> quickRestartKey;
   public static ConfigEntry<KeyCode> setCheckpointKey;
   public static ConfigEntry<KeyCode> moveToCheckpointKey;
@@ -36,8 +36,8 @@ internal class Config
     invincibilityKey = plugin.Config.Bind("Keybinds", "Toggle invincibility", KeyCode.F2, "Keybind to toggle invincibility.");
     chartJumpAheadKey = plugin.Config.Bind("Keybinds", "Jump ahead in chart", KeyCode.Y, "Keybind to jump ahead in a chart.");
     chartJumpBackKey = plugin.Config.Bind("Keybinds", "Jump back in chart", KeyCode.T, "Keybind to jump back in a chart.");
-    chartSpeedDownKey = plugin.Config.Bind("Keybinds", "Chart speed up", KeyCode.H, "Keybind to increase the chart speed.");
-    chartSpeedUpKey = plugin.Config.Bind("Keybinds", "Chart speed down", KeyCode.G, "Keybind to decrease the chart speed.");
+    chartSpeedUpKey = plugin.Config.Bind("Keybinds", "Chart speed up", KeyCode.H, "Keybind to increase the chart speed.");
+    chartSpeedDownKey = plugin.Config.Bind("Keybinds", "Chart speed down", KeyCode.G, "Keybind to decrease the chart speed.");
     quickRestartKey = plugin.Config.Bind("Keybinds", "Quick restart", KeyCode.R, "Keybind to restart a battle.");
     setCheckpointKey = plugin.Config.Bind("Keybinds", "Set checkpoint", KeyCode.B, "Keybind to set a checkpoint.");
     moveToCheckpointKey = plugin.Config.Bind("Keybinds", "Move to checkpoint", KeyCode.N, "Keybind to move to a checkpoint.");
