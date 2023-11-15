@@ -10,6 +10,9 @@ using Doozy.Engine.Extensions;
 using System.Collections.Generic;
 
 using static EHUtilConfig.Config;
+using System.Collections;
+using Fungus;
+using System.Linq;
 
 namespace EHUtil;
 
@@ -162,8 +165,13 @@ public class EHUtil : BaseUnityPlugin
     }
     if (Input.GetKeyDown(quickRestartKey.Value))
     {
-      BattlePauseController bpc = FindObjectOfType<BattlePauseController>();
-      if (bpc != null) bpc.Retry();
+      // BattlePauseController bpc = FindObjectOfType<BattlePauseController>();
+      // if (bpc != null) bpc.Retry();
+      SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+      if (SceneManager.GetActiveScene().buildIndex == 15) // Incinerator
+      {
+        StartCoroutine(SkipToIncineratorPartTwo());
+      }
     }
     if (Input.GetKeyDown(setCheckpointKey.Value))
     {
@@ -212,5 +220,16 @@ public class EHUtil : BaseUnityPlugin
         }
       }
     }
+  }
+
+  IEnumerator SkipToIncineratorPartTwo()
+  {
+    yield return new WaitForSeconds(.1f);
+    var list = GameObject.FindObjectsOfType<Flowchart>().First(f => f.gameObject.name == "EventFlowChart").FindBlock("Start").CommandList;
+    list.RemoveRange(13, 8); // Remove Red looking around in the cutscene
+    yield return new WaitForSeconds(.5f);
+    var readers = GameObject.FindObjectsOfType<Everhood.Chart.ChartReader>();
+    foreach (var reader in readers)
+      if (reader.gameObject.name == "ChartEditor Incinerator part 2") reader.StartChartReader();
   }
 }
