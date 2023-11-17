@@ -40,17 +40,17 @@ public class EHUtilUI : MonoBehaviour
     ChartPosLabel.transform.SetParent(DebugUI.transform);
     ChartPosLabel.transform.localPosition = new Vector3(0f, 200f, 0f);
 
-    string debugControls = "-=Debug controls=-\n";
-    debugControls += $"{debugMenuKey.Value} - Show/hide this menu\n";
-    debugControls += $"{invincibilityKey.Value} - Toggle invincibility\n";
-    debugControls += $"{chartJumpBackKey.Value}/{chartJumpAheadKey.Value} - Move in chart\n";
-    debugControls += $"{chartSpeedDownKey.Value}/{chartSpeedUpKey.Value} - Change chart speed\n";
-    debugControls += $"{setCheckpointKey.Value} - Set checkpoint, {moveToCheckpointKey.Value} - Move to checkpoint\n";
-    debugControls += $"{toggleRCPHKey.Value} - Toggle return to checkpoint on hit (RCPH)\n";
-    debugControls += $"{toggleTASModeKey.Value} - Toggle TAS mode, {toggleTASPlaybackKey.Value} - TAS Playback\n";
-    debugControls += $"(In TAS mode) {advanceTASTimestepKey.Value} - Advance timestep\n";
-    debugControls += $"{quickRestartKey.Value} - Quick restart\n";
-    debugControls += $"{dumpChartKey.Value} - Dump current chart";
+    string debugControls = "<b><size=125%>Debug controls</size></b>\n";
+    debugControls += $"Show/hide this menu <space=2em> <color=#00FF00>{debugMenuKey.Value}</color>\n";
+    debugControls += $"Toggle invincibility <space=2em> <color=#00FF00>{invincibilityKey.Value}</color>\n";
+    debugControls += $"Move in chart <space=2em> <color=#00FF00>{chartJumpBackKey.Value}</color>/<color=#00FF00>{chartJumpAheadKey.Value}</color>\n";
+    debugControls += $"Change chart speed <space=2em> <color=#00FF00>{chartSpeedDownKey.Value}</color>/<color=#00FF00>{chartSpeedUpKey.Value}</color>\n";
+    debugControls += $"Set/move to checkpoint <space=2em> <color=#00FF00>{setCheckpointKey.Value}</color>/<color=#00FF00>{moveToCheckpointKey.Value}</color>\n";
+    debugControls += $" Toggle return to checkpoint on hit (RCPH) <space=2em> <color=#00FF00>{toggleRCPHKey.Value}</color>\n";
+    debugControls += $"Toggle TAS mode/TAS playback <space=2em> <color=#00FF00>{toggleTASModeKey.Value}</color>/<color=#00FF00>{toggleTASPlaybackKey.Value}</color>\n";
+    debugControls += $"<color=#AAAAAA>(In TAS mode)</color> Advance timestep <space=2em> <color=#00FF00>{advanceTASTimestepKey.Value}</color>\n";
+    debugControls += $"Quick restart <space=2em> <color=#00FF00>{quickRestartKey.Value}</color>\n";
+    debugControls += $"Dump current chart <space=2em> <color=#00FF00>{dumpChartKey.Value}</color>";
 
     DebugControlsLabel = DrawText(debugControls, TextDrawing.TextAlignmentOptions.Right);
     DebugControlsLabel.transform.SetParent(DebugUI.transform);
