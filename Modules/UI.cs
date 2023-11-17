@@ -61,12 +61,12 @@ public class EHUtilUI : MonoBehaviour
   {
     var stm = SpeedMultiplier.GetComponent<TextMeshProUGUI>();
 
-    if (EHUtil.currentPitch == 1f && SpeedMultiplier.activeSelf) SpeedMultiplier.SetActive(false);
-    else if (EHUtil.currentPitch != 1f && !SpeedMultiplier.activeSelf) SpeedMultiplier.SetActive(true);
+    if (Main.currentPitch == 1f && SpeedMultiplier.activeSelf) SpeedMultiplier.SetActive(false);
+    else if (Main.currentPitch != 1f && !SpeedMultiplier.activeSelf) SpeedMultiplier.SetActive(true);
 
-    stm.text = $"x{EHUtil.currentPitch:F1}";
+    stm.text = $"x{Main.currentPitch:F1}";
 
-    stm.color = EHUtil.currentPitch switch
+    stm.color = Main.currentPitch switch
     {
       >= 1.95f => Color.red,
       >= 1.45f and < 1.95f => new Color(1f, 0.5f, 0f),
@@ -77,14 +77,14 @@ public class EHUtilUI : MonoBehaviour
       _ => Color.white
     };
 
-    if (EHUtil.invincible && !InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(true);
-    else if (!EHUtil.invincible && InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(false);
+    if (Main.invincible && !InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(true);
+    else if (!Main.invincible && InvincibilityLabel.activeSelf) InvincibilityLabel.SetActive(false);
 
     if (Evergreen.Evergreen.DebugMode)
     {
-      if (EHUtil.lastCr != null)
+      if (Main.lastCr != null)
       {
-        string chartPos = $"Chart pos: {EHUtil.lastAudioSource.time:F1}/{EHUtil.lastSongLength:F1}\nCheckpoint pos: {EHUtil.lastCheckpoint:F1} (RCPH {(EHUtil.returnToCheckpointOnHit ? "on" : "off")})";
+        string chartPos = $"Chart pos: {Main.lastAudioSource.time:F1}/{Main.lastSongLength:F1}\nCheckpoint pos: {Main.lastCheckpoint:F1} (RCPH {(Main.returnToCheckpointOnHit ? "on" : "off")})";
         ChartPosLabel.GetComponent<TextMeshProUGUI>().text = chartPos;
       }
     }
